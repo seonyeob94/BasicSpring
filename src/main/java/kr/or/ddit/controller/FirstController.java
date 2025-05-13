@@ -1,6 +1,8 @@
 package kr.or.ddit.controller;
 
 
+import kr.or.ddit.dto.ArticleForm;
+import kr.or.ddit.entity.Article;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -82,8 +84,21 @@ public class FirstController {
     // PostMapping으로 받음. 이 때 괄호 안에는 받는 URL 주소를 넣음.
     // new.mustache에서 <form> 태그에 action="/articles/create"로 설정했음을 기억하자
     @PostMapping("/articles/create")   
-    public String createArticle(){
+    public String createArticle(ArticleForm form){
         log.info("createArticle에 왔다");
+
+        //폼에서 전송한 데이터를 매개변수로 받아옴.
+        // DTO로 만든 클래스 이름이 ArticleForm이므로
+        // ArticleForm 타입의 form 객체를 매개변수로 선언
+        //폼에서 전송한 데이터가 DTO에 잘 담겼는지 확인하기 위해 출력문을 추가
+        //로깅을 사용하기 위해 클래스 명 위에 Slf4j를 사용함.
+        log.info("createArticle->form : " + form);
+
+        //1. DTO(ArticleForm)를 엔티티(Article)로 변환
+        Article article = form.toEntity();
+
+        //2. 리파지터리로 엔티티를 DB에 저장
+
         //get방식으로 /articles/new URL을 재요청
         return "redirect:/articles/new";
     }
