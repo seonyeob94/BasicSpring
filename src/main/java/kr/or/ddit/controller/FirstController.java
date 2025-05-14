@@ -3,10 +3,13 @@ package kr.or.ddit.controller;
 
 import kr.or.ddit.dto.ArticleForm;
 import kr.or.ddit.entity.Article;
+import kr.or.ddit.repository.ArticleRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -23,6 +26,13 @@ import org.springframework.web.servlet.ModelAndView;
 @Slf4j
 @Controller
 public class FirstController {
+
+    //리파지터리 객체 선언
+    //의존성 주입(Dependency Injection)-DI
+    @Autowired
+    private ArticleRepository articleRepository;
+
+
     //메서드 작성
     @GetMapping("/hi")
     public ModelAndView niceToMeetYou(){
@@ -92,14 +102,49 @@ public class FirstController {
         // ArticleForm 타입의 form 객체를 매개변수로 선언
         //폼에서 전송한 데이터가 DTO에 잘 담겼는지 확인하기 위해 출력문을 추가
         //로깅을 사용하기 위해 클래스 명 위에 Slf4j를 사용함.
-        log.info("createArticle->form : " + form);
+        log.info("createArticle->form : " + form);//DTO
 
         //1. DTO(ArticleForm)를 엔티티(Article)로 변환
         Article article = form.toEntity();
+        log.info("createArticle->article : " + article);//Entity
 
-        //2. 리파지터리로 엔티티를 DB에 저장
+        //2. 리파지터리로 엔티티를 DB에 저장(method)
+        //article 엔티티를 H2 DBMS에 insert 된 후 그 행을 객체형태로 반환(그 행 자체)
+        //vs MyBATIS의 경우 return type은 int 타입 반환(행의 수에 초점)
+        Article saved = this.articleRepository.save(article);
+
+        log.info("createArticle->saved : " + saved);//Entity
+        System.out.println("createArticle->saved : " + saved);//Entity
 
         //get방식으로 /articles/new URL을 재요청
         return "redirect:/articles/new";
+    }
+
+    //데이터 조회 요청 접수
+    /*
+    요청 URI : /articles/1
+    경로(Path) 변수(Variable) : id
+    요청 방식 : get
+     */
+    @GetMapping("/articles/{id}")
+    public String show(@PathVariable(value = "id") Long id){//매개변수로 id 받아오기
+        //id를 잘 받았는지 확인하는 로그 찍기
+        log.info("show->id : {}", id);
+        log.info("show->id : " + id);
+        //1. id를 조회해 데이터 가져오기
+        // findById()는 JPA의 CrudRepository가 제공하는 메서드로, 특정 엔티티의 id 값을 기준으로
+        //  데이터를 찾아 Optional 타입으로 반환.
+        // orElse(null) : id 값으로 데이터를 찾을 때 해당 id 값이 없으면 null을 반환.
+        // 데이터를 조회한 결과, 값이 있으면 articleEntity 변수에 값을 넣고 없으면
+        //  null을 저장
+        //articleEntity{id=1,content=소똥이,title=개똥이}
+        Article articleEntity = this.articleRepository.findById(id).orElse(null);// 1번글
+        log.info("show->articleEntity : " + articleEntity);
+        //2. 모델에 데이터 등록하기
+        // article이라는 이름으로 value인 articleEntity 객체 추가
+
+        //3. 뷰 페이지 반환하기
+        // 뷰 페이지는 articles라는 디렉터리 안에 show라는 파일이 있다는 의미
+        return "articles/show";
     }
 }

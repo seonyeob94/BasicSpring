@@ -4,6 +4,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 //1. 엔티티 선언
 /*
@@ -12,6 +15,9 @@ Entity는 JPA에서 제공하는 애너테이션. 이 애너테이션이 붙은 
 DB에 테이블이 생성됨. 테이블 이름은 클래스 이름과 동일하게 Article로 생성됨
  */
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 public class Article { //테이블
     //Id가 빨간색으로 표시되면 마우스를 올린 후 Alt + Enter를 누르고
     //  Id(jakarta.persistence)를 선택
@@ -36,4 +42,17 @@ public class Article { //테이블
     //2. content 필드 선언, DB 테이블의 content 열과 연결됨
     @Column
     private String content; //컬럼
+
+    //Article 생성자 추가
+    /* AllArgsConstructor로 대체
+    public Article(Long id, String title, String content) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+    }
+     */
+
+    //각 프로퍼티 값 확인
+
+
 }
