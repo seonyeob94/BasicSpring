@@ -1,0 +1,68 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css" />
+    <title>Document</title>
+</head>
+<body>
+    <!--
+    요청URI :  /lprod/new
+    요청파라미터 :
+    요청방식 : get
+    -->
+
+    <!-- ///// body 시작 ///// -->
+    <!--
+    action : 요청URL. localhost:8030/lprod/create 페이지로 폼 데이터를 보낸다는 의미
+    method : 속성 값으로 get과 post, 2가지를 설정할 수 있음.
+
+    요청URI : /lprod/create
+    요청파라미터 : requset{lprodId=2, lprodGu=p102, lprodNa=전자제품}
+    요청 방식 : post
+    1. DTO 만들기 : LprodForm.java
+    2. LprodController.java -> 골뱅이Controller
+    2-1. 폼을 띄울 Get방식 요청(/lprod/new) Mapping. newLprodForm()메소드.
+            return "lprod/new"; //forwarding
+    2-2. submit 처리. createLprod() 메소드. LprodForm 타입의 form 매개변수로 파라미터 받기
+            return "redirect:/lprod/new";
+    -->
+    {{lprod}}
+    <!-- 업데이트 쎄대여
+    UPDATE LPROD
+    SET    LPRODGU='p102_1', LPRODNA='전자제품_이벤트상품'
+    WHERE  lprodId=2;
+    -->
+    <!--
+            action : 요청URL.  페이지로 폼 데이터를 보낸다는 의미
+            method : 속성 값으로 get과 post, 2가지를 설정할 수 있음.
+
+            요청URI : /lprod/update
+            요청파라미터 : request{lprodId=2,lprodGu=p102_1,lprodNa=전자제품_이벤트상품}
+            요청방식 : post
+    -->
+    <form class="container" action="/lprod/update" method="post">
+        <!-- 폼 데이터 -->
+        <input type="hidden" name="lprodId" value="{{lprod.lprodId}}" />
+        <!--
+        <div class="mb-3">
+            <label class="form-label">상품분류 번호</label>
+            <input type="text" class="form-control" name="lprodId" value="{{lprod.lprodId}}" />
+        </div>
+        -->
+        <div class="mb-3">
+            <label class="form-label">상품분류 코드</label>
+            <input type="text" class="form-control" name="lprodGu" value="{{lprod.lprodGu}}"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">상품분류 명</label>
+            <input type="text" class="form-control" name="lprodNa" value="{{lprod.lprodNa}}"/>
+        </div>
+        <button type="submit" class="btn btn-primary">확인</button>
+        <!-- 글상세 URI : /articles/2 -->
+        <a href="/lprod/{{lprod.lprodId}}" class="btn btn-secondary">Back</a>
+    </form>
+    <!-- ///// body 끝 ///// -->
+
+</body>
+</html>

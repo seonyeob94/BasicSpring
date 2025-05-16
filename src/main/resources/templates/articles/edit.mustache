@@ -1,0 +1,62 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css"/>
+    <title>Document</title>
+</head>
+<body>
+<!--
+요청URI :  /articles/new
+요청파라미터 :
+요청방식 : get
+-->
+
+<!-- ///// body 시작 ///// -->
+<!--
+action : 요청URL. localhost:8030/articles/create 페이지로 폼 데이터를 보낸다는 의미
+method : 속성 값으로 get과 post, 2가지를 설정할 수 있음.
+
+ 요청URI : /articles/create
+요청파라미터 : requset{title=개똥이의 모험, content=즐거운 모험}
+요청 방식 : post
+1. DTO 만들기 : ArticleForm.java
+2. FirstController.java -> 골뱅이Controller
+2-1. 폼을 띄울 Get방식 요청(/lprod/new) Mapping. newArticleForm()메소드.
+        return "articles/new"; //forwarding
+2-2. submit 처리. createLprod() 메소드. ArticleForm 타입의 form 매개변수로 파라미터 받기
+        return "redirect:/articles/new";
+-->
+{{article}}
+<!-- 업데이트 쎄대여
+UPDATE ARTICLE
+SET    TITLE='개똥이개똥이', CONTENT='즐거워즐거워'
+WHERE  ID=2;
+-->
+<!--
+        action : 요청URL.  페이지로 폼 데이터를 보낸다는 의미
+        method : 속성 값으로 get과 post, 2가지를 설정할 수 있음.
+
+        요청URI : /articles/update
+        요청파라미터 : request{id=2,title=개똥이개똥이,content=즐거워즐거워}
+        요청방식 : post
+-->
+<form class="container" action="/articles/update" method="post">
+    <!-- 폼 데이터 -->
+    <input type="hidden" name="id" value="{{article.id}}"/>
+    <div class="mb-3">
+        <label class="form-label">제목</label>
+        <input type="text" class="form-control" name="title" value="{{article.title}}"/>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">내용</label>
+        <textarea class="form-control" rows="3" name="content">{{article.content}}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">확인</button>
+    <!-- 글상세 URI : /articles/2 -->
+    <a href="/articles/{{article.id}}" class="btn btn-secondary">Back</a>
+</form>
+<!-- ///// body 끝 ///// -->
+
+</body>
+</html>

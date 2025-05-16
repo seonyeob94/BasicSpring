@@ -46,7 +46,7 @@ public class LprodForm {
 
 
     public Lprod toEntity() {
-        Lprod lprod = new Lprod(null, this.lprodGu, this.lprodNa);
+        Lprod lprod = new Lprod(this.lprodId, this.lprodGu, this.lprodNa);
         return lprod;
     }
 }

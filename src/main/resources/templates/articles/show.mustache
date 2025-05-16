@@ -2,31 +2,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css" />
+    <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css"/>
     <title>Document</title>
 </head>
 <body>
-    <h2>글 상세보기</h2>
-    <table class="table">
-        <tr>
-            <th>Id</th>
-            <th>Title</th>
-            <th>Content</th>
-        </tr>
-        <!--
-        articleEntity : Article(id=1, title=개똥이의 모험, content=즐거운 모험)
-        model.addAttribute("article",articleEntity);
+<h2>글 상세보기</h2>
+<table class="table">
+    <tr>
+        <th>Id</th>
+        <th>Title</th>
+        <th>Content</th>
+    </tr>
+    <!--
+    articleEntity : Article(id=1, title=개똥이의 모험, content=즐거운 모험)
+    model.addAttribute("article",articleEntity);
 
-        article의 사용 범위 내 article에 담긴 id, title, content의 값으로 치환
-         -->
-        {{#article}}
-            <tr>
-                <td>{{id}}</td>
-                <td>{{title}}</td>
-                <td>{{content}}</td>
-            </tr>
-        {{/article}}
-    </table>
-    <a href="/articles" class="btn btn-primary">목록</a>
+    article의 사용 범위 내 article에 담긴 id, title, content의 값으로 치환
+     -->
+    {{#article}}
+        <tr>
+            <td>{{id}}</td>
+            <td>{{title}}</td>
+            <td>{{content}}</td>
+        </tr>
+    {{/article}}
+</table>
+<a href="/articles" class="btn btn-primary">목록</a>
+<a href="/articles/{{article.id}}/edit" class="btn btn-warning">수정</a>
+<a href="/articles/{{article.id}}/delete" class="btn btn-danger">삭제</a>
 </body>
 </html>

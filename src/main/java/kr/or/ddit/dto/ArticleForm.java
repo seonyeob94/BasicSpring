@@ -67,7 +67,8 @@ public class ArticleForm {
     //DTO를 엔티티로 변환해주는 메서드
     //DTO가 생성될때 그 값을 엔티티에 전달
     public Article toEntity() {
-        Article article = new Article(null, this.title, this.content);
+        //null -> id로 수정(글수정을 위함)
+        Article article = new Article(this.id, this.title, this.content);
         return article;
     }
 }

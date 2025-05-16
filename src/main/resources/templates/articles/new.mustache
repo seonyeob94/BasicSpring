@@ -2,38 +2,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css" />
+    <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css"/>
     <title>Document</title>
 </head>
 <body>
-    <!--
-    요청URI :  /articles/new
-    요청파라미터 :
-    요청방식 : get
-    -->
+<!--
+요청URI :  /articles/new
+요청파라미터 :
+요청방식 : get
+-->
 
-    <!-- ///// body 시작 ///// -->
-    <!--
-    action : 요청URL. localhost:8030/articles/create 페이지로 폼 데이터를 보낸다는 의미
-    method : 속성 값으로 get과 post, 2가지를 설정할 수 있음.
+<!-- ///// body 시작 ///// -->
+<!--
+action : 요청URL. localhost:8030/articles/create 페이지로 폼 데이터를 보낸다는 의미
+method : 속성 값으로 get과 post, 2가지를 설정할 수 있음.
 
-    요청URI : /articles/create
-    요청파라미터 : requset{title=개똥이의 모험, content=즐거운 모험}
-    요청 방식 : post
-    -->
-    <form class="container" action="/articles/create" method="post">
-        <div class="mb-3">
-            <label class="form-label">제목</label>
-            <input type="text" class="form-control" name="title" />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">내용</label>
-            <textarea class="form-control" rows="3" name="content"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-        <a href="/articles" class="btn btn-secondary">목록</a>
-    </form>
-    <!-- ///// body 끝 ///// -->
+요청URI : /articles/create
+요청파라미터 : requset{title=개똥이의 모험, content=즐거운 모험}
+요청 방식 : post
+-->
+<form class="container" action="/articles/create" method="post">
+    <div class="mb-3">
+        <label class="form-label">제목</label>
+        <input type="text" class="form-control" name="title"/>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">내용</label>
+        <textarea class="form-control" rows="3" name="content"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <a href="/articles" class="btn btn-secondary">목록</a>
+</form>
+<!-- ///// body 끝 ///// -->
 
 </body>
 </html>

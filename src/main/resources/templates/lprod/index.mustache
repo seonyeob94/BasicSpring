@@ -2,7 +2,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css" />
+    <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css"/>
+    <!-- jQuery -->
+    <script src="/adminlte/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <title>Document</title>
 </head>
 <body>
@@ -11,39 +15,41 @@
     <div class="container-fluid">
         <!-- ///// body 시작 ///// -->
 
-<!-- msg 사용 범위 설정 시작 -->
+        <!-- msg 사용 범위 설정 시작
+        rttr.addFlashAttribute("msg","삭제했습니다");
+        -->
+        {{#msg}}
+            <div class="alert alert-primary alert-dismissible"><!-- 메시지 창 작성 -->
+                {{msg}}
+                <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">Close</button>
+            </div>
+        {{/msg}}
 
-<div class="alert alert-primary alert-dismissible"><!-- 메시지 창 작성 -->
+        <!-- msg 사용 범위 설정 끝 -->
+        <table class="table">
+            <tr>
+                <th scope="col">상품분류 번호</th>
+                <th scope="col">상품분류 코드</th>
+                <th scope="col">상품분류 명</th>
+            </tr>
+            <!-- model.addAttribute("lprodList", lprodEntityList);
+                    lprodEntityList 반복하면서
+                    lprodEntity : lprod(lprodId=1, lprodGu=p101, lprodNa=컴퓨터제품)
+                    lprodEntity : lprod(lprodId=2, lprodGu=p102, lprodNa=전자제품)
+                    lprodEntity : lprod(lprodId=3, lprodGu=p103, lprodNa=여성 캐주얼 의류)
 
-    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">Close</button>
-</div>
-
-<!-- msg 사용 범위 설정 끝 -->
-<table class="table">
-    <tr>
-        <th scope="col">상품분류 번호</th>
-        <th scope="col">상품분류 코드</th>
-        <th scope="col">상품분류 명</th>
-    </tr>
-    <!-- model.addAttribute("lprodList", lprodEntity);-->
-    <!-- model.addAttribute("lprodList", lprodEntityList);
-            lprodEntityList 반복하면서
-            lprodEntity : lprod(lprodId=1, lprodGu=p101, lprodNa=컴퓨터제품)
-            lprodEntity : lprod(lprodId=2, lprodGu=p102, lprodNa=전자제품)
-            lprodEntity : lprod(lprodId=3, lprodGu=p103, lprodNa=여성 캐주얼 의류)
-
-            -->
-    {{#lprodList}}
-        <tr>
-            <td>{{lprodId}}</td>
-            <td><a href="/lprod/{{lprodId}}">{{lprodGu}}</a></td>
-            <td>{{lprodNa}}</td>
-        </tr>
-    {{/lprodList}}
-</table>
-<a href="/lprod/new" class="btn btn-primary">New Lprod</a>
-<!-- ///// body 끝 ///// -->
-</div><!-- /.container-fluid -->
+                    -->
+            {{#lprodList}}
+                <tr>
+                    <td>{{lprodId}}</td>
+                    <td><a href="/lprod/{{lprodId}}">{{lprodGu}}</a></td>
+                    <td>{{lprodNa}}</td>
+                </tr>
+            {{/lprodList}}
+        </table>
+        <a href="/lprod/new" class="btn btn-primary">New Lprod</a>
+        <!-- ///// body 끝 ///// -->
+    </div><!-- /.container-fluid -->
 </section>
 <!-- /.content -->
 </body>
