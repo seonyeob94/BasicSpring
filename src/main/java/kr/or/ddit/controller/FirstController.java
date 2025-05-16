@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
+
 /*
 애너테이션(annotation)이란?
 소스 코드에 추가해 사용하는 메타 데이터의 일종.
@@ -112,12 +114,13 @@ public class FirstController {
         //article 엔티티를 H2 DBMS에 insert 된 후 그 행을 객체형태로 반환(그 행 자체)
         //vs MyBATIS의 경우 return type은 int 타입 반환(행의 수에 초점)
         Article saved = this.articleRepository.save(article);
-
+        //Article(id=1, title=개똥이의 모험1, content=즐거운 모험1)
         log.info("createArticle->saved : " + saved);//Entity
         System.out.println("createArticle->saved : " + saved);//Entity
 
-        //get방식으로 /articles/new URL을 재요청
-        return "redirect:/articles/new";
+        //기존 : get방식으로 /articles/new URL을 재요청
+        //해당 글이 잘 등록됐음을 알려 주는 상세 페이지가 나올 수 있도록 리다이렉트 개념을 적용해보자
+        return "redirect:/articles/"+saved.getId();
     }
 
     //데이터 조회 요청 접수
@@ -127,7 +130,8 @@ public class FirstController {
     요청 방식 : get
      */
     @GetMapping("/articles/{id}")
-    public String show(@PathVariable(value = "id") Long id){//매개변수로 id 받아오기
+    public String show(@PathVariable(value = "id") Long id,
+                       Model model){//매개변수로 id 받아오기
         //id를 잘 받았는지 확인하는 로그 찍기
         log.info("show->id : {}", id);
         log.info("show->id : " + id);
@@ -142,9 +146,30 @@ public class FirstController {
         log.info("show->articleEntity : " + articleEntity);
         //2. 모델에 데이터 등록하기
         // article이라는 이름으로 value인 articleEntity 객체 추가
-
+        model.addAttribute("article", articleEntity);
         //3. 뷰 페이지 반환하기
         // 뷰 페이지는 articles라는 디렉터리 안에 show라는 파일이 있다는 의미
+        //forwarding : mustache
         return "articles/show";
+    }
+
+    /* 글 목록
+    요청URI : /articles
+    요청파라미터 :
+    요청방식 : get
+     */
+    @GetMapping("/articles")
+    public String index(Model model){//index() 메소드의 매개변수로 : model 객체를 받아옴
+        //1. 모든 데이터 가져오기
+        //findAll() 메서드의 반환 데이터 타입은 Iterable. List라서 불일치
+        //첫째, 캐스팅(형변환). Iteratable, Collection, LList 인터페이스의 상하 관계는 Iteratable이 가장 상위 인터페이스
+        // Iteratable이 가장 상위 인터페이스
+        ArrayList<Article> articleEntityList = this.articleRepository.findAll();
+        //2. 모델에 데이터 등록하기(쌍쌍 쉼 쌍쌍)
+        model.addAttribute("articleList", articleEntityList);
+        //3. 뷰 페이지 설정하기
+        // articles 디렉터리 안에 index.mustache 파일이 뷰 페이지로 설정
+        //forwarding : mustache
+        return "articles/index";
     }
 }

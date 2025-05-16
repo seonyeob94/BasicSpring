@@ -1,10 +1,8 @@
 package kr.or.ddit.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -12,9 +10,10 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @NoArgsConstructor
+@Getter
 public class Lprod {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long lprodId;
 
     @Column
