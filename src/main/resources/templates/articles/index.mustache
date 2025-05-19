@@ -2,12 +2,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="#" />
     <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css"/>
     <!-- jQuery -->
     <script src="/adminlte/plugins/jquery/jquery.min.js"></script>
     <!-- Bootstrap 4 -->
     <script src="/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <title>Document</title>
+    <script type="text/javascript">
+        //document의 모든 요소들이 로딩된 후에 실행
+        //$(function(){
+        document.addEventListener("DOMContentLoaded",()=>{
+            console.log("개똥이");
+
+            /* 글 상세
+            <a href="#" class="clsTd" data-id="1">개똥이의 여행</a>
+            에서 id값을 추출
+
+            동적으로 생성된 엘리멘트의 경우 document로 접근해야 함
+            */
+            $(document).on("click",".clsTd",function(){
+                //this : 그 중에서 방금 클릭한 바로 그 엘리먼트
+                //<a href="#" class="clsTd" data-id="2">개똥이의 여행2</a>
+
+                let id =$(this).data("id"); //2
+                console.log("id : ", id);
+                 //아작나써유..(피)씨다타써
+                //contentType : 보내는 타입
+                //dataType : 응답타입
+                $.ajax({
+                    url:`/api/articles/${id}`,
+                    type:"get",
+                    dataType:"json",
+                    success:function(result){
+                        //result{"id": 2,"title": "개똥이의 여행2","content": "즐거운 여행2"}
+                        console.log("result : ", result);
+                    }
+                });
+            });
+
+            /* 글 목록
+            요청URI : /api/articles
+            요청파라미터 :
+            요청방식 : get
+             */
+            //아작나써유..(피)씨다타써
+            /*
+            contentType:"application/json;charset=utf-8" 보내는 타입 생략
+            data: 요청데이터생략
+            dataType:응답타입
+            ajax : Asynchronous(비동기) JavaScript and XML => 정보교환
+            */
+            fetch("/api/articles",{
+                method:"GET",
+                headers:{
+                    "Content-Type":"application/json;charset=utf-8" //서버에 보내는 데이터 타입 명시 (생략 가능)
+                }
+                //body:데이터 (GET 요청에는 일반적으로 body가 없음)
+            })
+            .then(response=>{
+                //response.ok : HTTP Status Code가 200(성공)
+                if(!response.ok){//응답 오류
+                    throw new Error(`HTTP error! status : ${response.status}`);//오류 처리
+                }
+                //응답 데이터(JSON String)를 JSON 객체 형태로 파싱(구문/의미분석)하여
+                // 다음 then으로 전달
+                return response.json();
+            })
+            .then(result=>{
+                // 파싱된 JSON 데이터(result)를 보여주는 부분
+                console.log("result : ", result);
+
+                // result는 서버에서 받은 Article 엔티티 객체들의 리스트
+                 // HTML 문자열을 담을 변수 초기화
+                 let str = "";
+                 // 테이블의 tbody 요소를 가져옴(id="tbdy")
+                 const tbody = document.getElementById("tbdy");
+                 // 각 article 객체에 대해 반복 처리
+                 result.forEach(article=>{
+                    // article 객체 출력 (id, title, content 속성 포함)
+                    console.log("article : ", article);
+                    // 백틱을 사용하여 테이블 행(tr)과 데이터 셀(td)을 생성하고 article 데이터를 삽입
+                     str += `
+                            <tr>
+                                <td>${article.id}</td>
+                                <td><a href="#" class="clsTd" data-id="${article.id}" >${article.title}</a></td>
+                                <td>${article.content}</td>
+                            </tr>
+                        `;
+                 });
+                 // tbody 요소의 innerHTML 속성을 사용하여 생성된 HTML 문자열로 내용을 업데이트
+                 tbody.innerHTML = str;
+                // .append()와 유사하게 기존 내용을 유지하면서 새로운 내용을 추가하지만,
+                // 여기서는 문자열 전체를 덮어쓰는 방식으로 구현
+            })
+            .catch(error=>{
+                // 네트워크 오류나 서버 응답 오류 등 예외가 발생했을 경우 처리
+                console.error('데이터를 가져오는 중 오류 발생:', error);
+            });
+        });
+    </script>
 </head>
 <body>
 
@@ -27,17 +121,21 @@
         {{/msg}}
         <!-- msg 사용 범위 설정 끝 -->
         <table class="table">
-            <tr>
-                <th scope="col">Id</th>
-                <th scope="col">Title</th>
-                <th scope="col">Content</th>
-            </tr>
+            <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Content</th>
+                </tr>
+            </thead>
+            <tbody id="tbdy">
             <!-- model.addAttribute("articleList", articleEntityList);
                     articleEntityList 반복하면서
                     articleEntity : Article(id=1, title=개똥이의 모험1, content=즐거운 모험1)
                     articleEntity : Article(id=2, title=개똥이의 모험2, content=즐거운 모험2)
                     articleEntity : Article(id=3, title=개똥이의 모험3, content=즐거운 모험3)
                     -->
+            <!--
             {{#articleList}}
                 <tr>
                     <td>{{id}}</td>
@@ -45,11 +143,39 @@
                     <td>{{content}}</td>
                 </tr>
             {{/articleList}}
+            -->
+            </tbody>
         </table>
         <a href="/articles/new" class="btn btn-primary">New Article</a>
         <!-- ///// body 끝 ///// -->
     </div><!-- /.container-fluid -->
+
+
 </section>
 <!-- /.content -->
+<!--///글 상세 모달 시작 ///-->
+<div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Large Modal</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>One fine body&hellip;</p>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!--///글 상세 모달 끝 ///-->
+
 </body>
 </html>

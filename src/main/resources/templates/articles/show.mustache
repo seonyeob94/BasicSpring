@@ -3,7 +3,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css"/>
+    <!-- jQuery -->
+    <script src="/adminlte/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <title>Document</title>
+    <script>
+        //document 내 모든 엘리먼트(요소)가 로딩된 후에 실행
+        $(function(){
+            //아작나써유..(피)씨다타써
+            //contentType : 보내는 타입 "application/JSON;charset=UTF-8"
+            //dataType : 응답타입
+            $.ajax({
+                url:"/api/articles/2",
+                type:"get",
+                dataType:"json",
+                success:function(result){
+                    console.log("result : ", result);
+
+                }
+
+            });
+        });
+    </script>
 </head>
 <body>
 <h2>글 상세보기</h2>
