@@ -1,13 +1,11 @@
 package kr.or.ddit.api;
 
+import kr.or.ddit.dto.ArticleForm;
 import kr.or.ddit.entity.Article;
 import kr.or.ddit.repository.ArticleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -65,4 +63,35 @@ public class FirstApiController {
         //데이터 응답
         return article;
     }
+
+    /*
+    요청URI : /articles/update
+    요청파라미터 : request{id=2,title=개똥이개똥이,content=즐거워즐거워}
+    요청방식 : post
+
+    URL 요청 접수
+    매개변수로 DTO 받아 오기
+     */
+    @PostMapping("/articles/update")
+    public String update(ArticleForm form){
+        log.info("update->form : " + form);
+        //        1. DTO를 엔티티로 변환
+        //DTO(form)를 엔티티(articleEntity)로 변환
+        Article articleEntity = form.toEntity();
+        log.info("update->articleEntity : " + articleEntity);
+
+        //        2. 엔티티를 DB에 저장
+        //2-1. DB에서 기존 데이터 가져오기(검증)
+        Article target = this.articleRepository.findById(articleEntity.getId()).orElse(null);
+        log.info("update->target : " + target);
+
+        //2-2. 기존 데이터 값을 갱신하기
+        //엔티티를 DB에 저장(갱신)
+        if(target != null){//검증완료
+            this.articleRepository.save(articleEntity);
+        }
+        //        3. 수정 결과 페이지로 리다이렉트(상세 보기) : 새로운 URI를 재요청
+        return "redirect:/articles/"+articleEntity.getId();
+    }
+
 }

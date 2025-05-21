@@ -2,18 +2,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="#" />
+    <link rel="shortcut icon" href="#"/>
     <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css"/>
     <!-- jQuery -->
     <script src="/adminlte/plugins/jquery/jquery.min.js"></script>
     <!-- Bootstrap 4 -->
     <script src="/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <title>Document</title>
     <script type="text/javascript">
+        //전역 변수 선언
+        let id ="";
+        let title = "";
+        let content = "";
+
+
         //document의 모든 요소들이 로딩된 후에 실행
         //$(function(){
         document.addEventListener("DOMContentLoaded",()=>{
             console.log("개똥이");
+
+            /* 글 수정 취소
+
+            */
+            $("#modalBtnCancel").on("click",function(){
+                $("#modalTitle").html(title); //전역변수에는 문자열이 있음
+                $("#modalContent").html(content);//전역변수에는 문자열이 있음
+                //4. 일반모드로 변환
+                $("#spnGen").css("display","block"); //일반영역 보임
+                $("#spnEdit").css("display","none"); //수정영역 안보임
+            })
+
+           /* 글 수정 폼 */
+            $("#modalBtnEdit").on("click",function(){
+                //1. id, title, content의 값을 변수에 저장
+                id = $("#modalId").val(); //2
+                //<h4 class="modal-title" id="modalTitle">개똥이의 여행2</h4>
+                title = $("#modalTitle").html();//개똥이의 여행2
+                //<p id="modalContent">즐거운 여행2</p>
+                content = $("#modalContent").html();//즐거운 여행2
+
+                console.log("id : ", id);
+                console.log("title : ", title);
+                console.log("content : ", content);
+
+                //2. id="modalTitle" 요소 안에 text 처리
+                let strTitle = `
+                    <input type="email" class="form-control" id="exampleInputTitle" value="${title}" placeholder="글제목">
+
+                `;
+                $("#modalTitle").html(strTitle);
+                //3. id="modalContent" 요소 안에 text 처리
+                let strContent = `
+                    <input type="email" class="form-control" id="exampleInputContent" value="${content}" placeholder="글내용">
+
+                `;
+                $("#modalContent").html(strContent);
+
+                //4. 수정모드로 변환
+                $("#spnGen").css("display","none"); //일반영역 안보임
+                $("#spnEdit").css("display","block"); //수정영역 보임
+
+            });
 
             /* 글 상세
             <a href="#" class="clsTd" data-id="1">개똥이의 여행</a>
@@ -21,26 +69,62 @@
 
             동적으로 생성된 엘리멘트의 경우 document로 접근해야 함
             */
-            $(document).on("click",".clsTd",function(){
+            //$(document).on("click",".clsTd",function(){
+            document.addEventListener("click",function(event){
                 //this : 그 중에서 방금 클릭한 바로 그 엘리먼트
                 //<a href="#" class="clsTd" data-id="2">개똥이의 여행2</a>
 
-                let id =$(this).data("id"); //2
-                console.log("id : ", id);
+                // let id =$(this).data("id"); //2
+                    let id="";
+
+                if(event.target.classList.contains("clsTd")){
+                    //let id =$(this).data("id");   //2
+                    id =event.target.dataset.id;
+
+                    console.log("id : ", id);
+                }else{//클릭된 요소가 class="clsTd"를 가지고 있지 않을때
+                    //함수 자체를 종료
+                    return;
+                }
+
                  //아작나써유..(피)씨다타써
                 //contentType : 보내는 타입
                 //dataType : 응답타입
-                $.ajax({
-                    url:`/api/articles/${id}`,
-                    type:"get",
-                    dataType:"json",
-                    success:function(result){
-                        //result{"id": 2,"title": "개똥이의 여행2","content": "즐거운 여행2"}
-                        console.log("result : ", result);
-                        $("#modalTitle").val(result.tilte);//모달의 제목
-                        $("#modalContent").val(result.content);//모달의 내용
+
+                fetch(`/api/articles/${id}`,{
+                    method:"get",
+                    headers:{
+                        "content-Type":"application/json;charset=utf-8"
                     }
-                });
+                })
+                .then(response=>response.json())
+                .then(result=>{
+                    console.log("result : ",result);
+
+                    //<input type="text" id="modalId" />
+                    document.getElementById("modalId").value = result.id;
+
+                     // 1. 모달의 id가 "modalTitle"인 요소의 내용을 서버에서 받은 title 값으로 업데이트
+                    const modalTitleElement = document.getElementById("modalTitle");
+                    if(modalTitleElement){
+                        modalTitleElement.textContent = result.title;
+                    }
+                     // 2. 모달의 id가 "modalContent"인 요소의 내용을 서버에서 받은 content 값으로 업데이트
+                     const modalContentElement = document.getElementById("modalContent");
+                     if(modalContentElement){
+                        modalContentElement.textContent = result.content;
+                     }
+
+                    //4. 일반모드로 변환
+                    $("#spnGen").css("display","block"); //일반영역 보임
+                    $("#spnEdit").css("display","none"); //수정영역 안보임
+
+                    })
+                .catch(error=>{
+                     console.log("error : ", error);
+                })
+
+
             });
 
             /* 글 목록
@@ -76,25 +160,26 @@
                 console.log("result : ", result);
 
                 // result는 서버에서 받은 Article 엔티티 객체들의 리스트
-                 // HTML 문자열을 담을 변수 초기화
-                 let str = "";
-                 // 테이블의 tbody 요소를 가져옴(id="tbdy")
-                 const tbody = document.getElementById("tbdy");
-                 // 각 article 객체에 대해 반복 처리
-                 result.forEach(article=>{
+                // HTML 문자열을 담을 변수 초기화
+                let str = "";
+
+                // 테이블의 tbody 요소를 가져옴(id="tbdy")
+                const tbody = document.getElementById("tbdy");
+                // 각 article 객체에 대해 반복 처리
+                result.forEach(article=>{
                     // article 객체 출력 (id, title, content 속성 포함)
                     console.log("article : ", article);
                     // 백틱을 사용하여 테이블 행(tr)과 데이터 셀(td)을 생성하고 article 데이터를 삽입
-                     str += `
+                    str += `
                             <tr>
                                 <td>${article.id}</td>
                                 <td><a href="#" class="clsTd" data-id="${article.id}" data-toggle="modal" data-target="#modalLg">${article.title}</a></td>
                                 <td>${article.content}</td>
                             </tr>
                         `;
-                 });
-                 // tbody 요소의 innerHTML 속성을 사용하여 생성된 HTML 문자열로 내용을 업데이트
-                 tbody.innerHTML = str;
+                });
+                // tbody 요소의 innerHTML 속성을 사용하여 생성된 HTML 문자열로 내용을 업데이트
+                tbody.innerHTML = str;
                 // .append()와 유사하게 기존 내용을 유지하면서 새로운 내용을 추가하지만,
                 // 여기서는 문자열 전체를 덮어쓰는 방식으로 구현
             })
@@ -104,6 +189,7 @@
             });
         });
     </script>
+    <title>Document</title>
 </head>
 <body>
 
@@ -118,17 +204,17 @@
         {{#msg}}
             <div class="alert alert-primary alert-dismissible"><!-- 메시지 창 작성 -->
                 {{msg}}
-                <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close" >Close</button>
+                <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">Close</button>
             </div>
         {{/msg}}
         <!-- msg 사용 범위 설정 끝 -->
         <table class="table">
             <thead>
-                <tr>
-                    <th scope="col">Id</th>
-                    <th scope="col">Title</th>
-                    <th scope="col">Content</th>
-                </tr>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Title</th>
+                <th scope="col">Content</th>
+            </tr>
             </thead>
             <tbody id="tbdy">
             <!-- model.addAttribute("articleList", articleEntityList);
@@ -155,7 +241,15 @@
 
 </section>
 <!-- /.content -->
-<!--///글 상세 모달 시작 ///-->
+<!--///글 상세 모달 시작
+{
+    "id": 1,
+    "title": "개똥이의 여행",
+    "content": "즐거운 여행"
+}
+
+ ///-->
+
 <div class="modal fade" id="modalLg">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -166,11 +260,22 @@
                 </button>
             </div>
             <div class="modal-body">
+                <!-- 차후 hidden 처리-->
+                <input type="text" id="modalId"/>
                 <p id="modalContent"></p>
             </div>
-            <div class="modal-footer justify-content-between">
+            <div class="modal-footer justify-content">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <!-- 일반 모드 -->
+                <span id="spnGen">
+                    <button type="button" class="btn btn-warning" id="modalBtnEdit">수정</button>
+                    <button type="button" class="btn btn-danger" id="modalBtnDelete">삭제</button>
+                </span>
+                <!-- 수정 모드(처음에는 안보임) -->
+                <span id="spnEdit" style="display:none;">
+                    <button type="button" class="btn btn-primary" id="modalBtnConfirm">확인</button>
+                    <button type="button" class="btn btn-secondary" id="modalBtnCancel">취소</button>
+                </span>
             </div>
         </div>
         <!-- /.modal-content -->

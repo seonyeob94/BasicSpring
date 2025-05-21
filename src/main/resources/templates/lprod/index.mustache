@@ -2,6 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="#"/>
     <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css"/>
     <!-- jQuery -->
     <script src="/adminlte/plugins/jquery/jquery.min.js"></script>
@@ -11,6 +12,126 @@
 </head>
 <body>
 <!-- Main content -->
+<script>
+    //document의 모든 요소들이 로딩된 후에 실행
+   // $(function(){
+    document.addEventListener("DOMContentLoaded",()=>{
+        //비동기 상세 모달
+        //동적으로 생성 된 클래스 속성의 값이 clsTd인 요소들을 클릭
+        //$(document).on("click",".clsTd",function(){
+        // document에 이벤트 리스너를 등록하여 동적으로 생성된 요소에도 
+        //이벤트 처리를 위임(delegation)함  
+        document.addEventListener("click",function(event){
+            //그것들 중에서 클릭한 바로 그 엘리먼트
+            //달러(this) : <a href="#" class="clsTd" data-lprod-id="2">P102</a>
+            //클릭된 요소가 class="clsTd"를 가지고 있는지 확인
+            let lprodId="";
+            if(event.target.classList.contains("clsTd")){
+                //let lprodId =$(this).data("lprodId");   //2
+                lprodId =event.target.dataset.lprodId;
+
+                console.log("lprodId : ", lprodId);
+            }else{//클릭된 요소가 class="clsTd"를 가지고 있지 않을때
+                //함수 자체를 종료
+                return;
+            }
+
+
+            
+
+            //비동기 요청 발생
+            //피 : processData:false => formData 사용 시 필요
+            //씨 : contentType:보내는 데이터 타입
+            //다 : data:JSON String
+            //아작나써유..(피)(씨다)타써
+            //백틱에서 J/S변수는 달러{}로 처리
+            fetch(`/api/lprod/${lprodId}`,{
+                method:"GET",
+                hearders:{
+                    "Content-Type":"application/json;charset=utf-8" //응답 데이터 타입을 JSON으로 명시
+                }
+                //body:데이터 (GET 요청에는 일반적으로 body가 없음)
+            })
+            .then(response=>response.json())// 서버로부터의 응답(JSON String)을 JSON 형태로 파싱(JSON Object)하는것
+            .then(result=>{
+                 console.log("result :", result);
+
+
+                // 1. 모달의 id가 "modalLprodGu"인 요소의 내용을 서버에서 받은 lprodGu 값으로 업데이트
+                const modalLprodGuElement = document.getElementById("modalLprodGu");
+                if(modalLprodGuElement){
+                    modalLprodGuElement.textContent = result.lprodGu;
+                }
+                // 2. 모달의 id가 "modalLprodNa"인 요소의 내용을 서버에서 받은 lprodNa 값으로 업데이트
+                const modalLprodNaElement = document.getElementById("modalLprodNa");
+                if(modalLprodNaElement){
+                    modalLprodNaElement.textContent = result.lprodNa;
+                }
+            })// JSON 형태로 파싱된 result를 통해 비즈니스로직 수행
+            .catch(error=>{
+                console.log("error : ", error);
+            })// 오류 처리
+
+        });
+
+        //비동기 목록 출력
+        //아작나써유//(피)(싸다)타써
+        /*
+        요청URI : /api/lprod
+        요청파라미터 :
+        요청방식 : post
+        */
+        $.ajax({
+            url:"/api/lprod",
+            type:"post",
+            dataType:"json",
+            success:function(result){
+                /*
+                result
+                [
+                    {
+                        "lprodId": 1,
+                        "lprodGu": "P101",
+                        "lprodNa": "컴퓨터제품"
+                    },
+                    {
+                        "lprodId": 2,
+                        "lprodGu": "P102",
+                        "lprodNa": "전자제품"
+                    },
+                    {
+                        "lprodId": 3,
+                        "lprodGu": "P201",
+                        "lprodNa": "여성 캐주얼 의류"
+                    }
+                ]
+                */
+
+                console.log("result :", result);
+
+                let str ="";
+                //result : List<Lprod>
+                $.each(result,function(idx,lprod){
+                    console.log("lprod",lprod);
+                    //백틱 안에 J/S변수의 값을 출력하려면 달러{}
+                    //상세보기
+                    //1) 무엇을 클릭했는가?
+                    //2) 그 무엇에 대한 데이터를 모달에 출력
+                    str+=`
+                         <tr>
+                            <td>${lprod.lprodId}</td>
+                            <td><a href="#" class="clsTd" data-lprod-id="${lprod.lprodId}" data-toggle="modal" data-target="#modalLg">${lprod.lprodGu}</a></td>
+                            <td>${lprod.lprodNa}</td>
+                        </tr>
+                    `;
+                });
+                console.log("str : ", str);
+
+                $("#tbdy").html(str);
+            }
+        });
+    });
+</script>
 <section class="content">
     <div class="container-fluid">
         <!-- ///// body 시작 ///// -->
@@ -27,11 +148,14 @@
 
         <!-- msg 사용 범위 설정 끝 -->
         <table class="table">
+            <thead>
             <tr>
                 <th scope="col">상품분류 번호</th>
                 <th scope="col">상품분류 코드</th>
                 <th scope="col">상품분류 명</th>
             </tr>
+            </thead>
+            <tbody id="tbdy">
             <!-- model.addAttribute("lprodList", lprodEntityList);
                     lprodEntityList 반복하면서
                     lprodEntity : lprod(lprodId=1, lprodGu=p101, lprodNa=컴퓨터제품)
@@ -39,18 +163,52 @@
                     lprodEntity : lprod(lprodId=3, lprodGu=p103, lprodNa=여성 캐주얼 의류)
 
                     -->
-            {{#lprodList}}
-                <tr>
-                    <td>{{lprodId}}</td>
-                    <td><a href="/lprod/{{lprodId}}">{{lprodGu}}</a></td>
-                    <td>{{lprodNa}}</td>
-                </tr>
-            {{/lprodList}}
+            <!--
+                {{#lprodList}}
+                    <tr>
+                        <td>{{lprodId}}</td>
+                        <td><a href="/lprod/{{lprodId}}">{{lprodGu}}</a></td>
+                        <td>{{lprodNa}}</td>
+                    </tr>
+                {{/lprodList}}
+                -->
+            </tbody>
         </table>
         <a href="/lprod/new" class="btn btn-primary">New Lprod</a>
         <!-- ///// body 끝 ///// -->
     </div><!-- /.container-fluid -->
 </section>
 <!-- /.content -->
+
+<!--///상품분류 상세 모달 시작
+{
+    "lprodId": 1,
+    "lprodGu": "P201",
+    "lprodNa": "전자제품"
+}
+///-->
+<div class="modal fade" id="modalLg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalLprodGu"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="modalLprodNa"></p>
+            </div>
+            <div class="modal-footer justify-content">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning" style="">수정</button>
+                <button type="button" class="btn btn-danger">삭제</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!--///글 상세 모달 끝 ///-->
 </body>
 </html>
