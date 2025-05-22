@@ -13,125 +13,196 @@
 <body>
 <!-- Main content -->
 <script>
-    //document의 모든 요소들이 로딩된 후에 실행
-   // $(function(){
-    document.addEventListener("DOMContentLoaded",()=>{
-        //비동기 상세 모달
-        //동적으로 생성 된 클래스 속성의 값이 clsTd인 요소들을 클릭
-        //$(document).on("click",".clsTd",function(){
-        // document에 이벤트 리스너를 등록하여 동적으로 생성된 요소에도 
-        //이벤트 처리를 위임(delegation)함  
-        document.addEventListener("click",function(event){
-            //그것들 중에서 클릭한 바로 그 엘리먼트
-            //달러(this) : <a href="#" class="clsTd" data-lprod-id="2">P102</a>
-            //클릭된 요소가 class="clsTd"를 가지고 있는지 확인
-            let lprodId="";
-            if(event.target.classList.contains("clsTd")){
-                //let lprodId =$(this).data("lprodId");   //2
-                lprodId =event.target.dataset.lprodId;
+    document.addEventListener("DOMContentLoaded", () => {
 
-                console.log("lprodId : ", lprodId);
-            }else{//클릭된 요소가 class="clsTd"를 가지고 있지 않을때
-                //함수 자체를 종료
-                return;
-            }
+        // 전역 변수 선언
+        let lprodId = "";
+        let lprodGu = "";
+        let lprodNa = "";
 
+        //전역 함수
+        function getLprodList(){
+            document.addEventListener("click", function(event) {
+            // 클릭된 요소가 class="clsTd"를 가지고 있는지 확인
+            if (!event.target.classList.contains("clsTd")) return;
 
-            
+            // data-lprod-id 속성에서 id 추출
+            const lprodId = event.target.dataset.lprodId;
+            console.log("lprodId : ", lprodId);
 
-            //비동기 요청 발생
-            //피 : processData:false => formData 사용 시 필요
-            //씨 : contentType:보내는 데이터 타입
-            //다 : data:JSON String
-            //아작나써유..(피)(씨다)타써
-            //백틱에서 J/S변수는 달러{}로 처리
-            fetch(`/api/lprod/${lprodId}`,{
-                method:"GET",
-                hearders:{
-                    "Content-Type":"application/json;charset=utf-8" //응답 데이터 타입을 JSON으로 명시
+            // 비동기 요청 발생
+            // 피: processData:false → formData 사용 시 필요
+            // 씨: contentType → 보내는 데이터 타입
+            // 다: data → JSON String
+            fetch(`/api/lprod/${lprodId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json;charset=UTF-8" // 응답 데이터 타입 명시
                 }
-                //body:데이터 (GET 요청에는 일반적으로 body가 없음)
+                // GET 요청에는 일반적으로 body가 없음
             })
-            .then(response=>response.json())// 서버로부터의 응답(JSON String)을 JSON 형태로 파싱(JSON Object)하는것
-            .then(result=>{
-                 console.log("result :", result);
-
-
-                // 1. 모달의 id가 "modalLprodGu"인 요소의 내용을 서버에서 받은 lprodGu 값으로 업데이트
+            .then(response => response.json())  // 서버 응답(JSON)을 JS 객체로 파싱
+            .then(result => {
+                console.log("result :", result);
+                document.getElementById("modalLprodId").value = result.lprodId;
+                // 1. modalLprodGu 업데이트
                 const modalLprodGuElement = document.getElementById("modalLprodGu");
-                if(modalLprodGuElement){
+                if (modalLprodGuElement) {
                     modalLprodGuElement.textContent = result.lprodGu;
                 }
-                // 2. 모달의 id가 "modalLprodNa"인 요소의 내용을 서버에서 받은 lprodNa 값으로 업데이트
+                // 2. modalLprodNa 업데이트
                 const modalLprodNaElement = document.getElementById("modalLprodNa");
-                if(modalLprodNaElement){
+                if (modalLprodNaElement) {
                     modalLprodNaElement.textContent = result.lprodNa;
                 }
-            })// JSON 형태로 파싱된 result를 통해 비즈니스로직 수행
-            .catch(error=>{
-                console.log("error : ", error);
-            })// 오류 처리
 
-        });
+                // 4. 일반모드로 복귀
+                $("#spnGen").css("display", "block");
+                $("#spnEdit").css("display", "none");
+            })
+            .catch(error => {
+                console.error("fetch error:", error);
+            });
+        }); // click 이벤트 리스너 닫기
 
-        //비동기 목록 출력
-        //아작나써유//(피)(싸다)타써
+
+        // 비동기 목록 출력
         /*
-        요청URI : /api/lprod
-        요청파라미터 :
-        요청방식 : post
+            요청URI : /api/lprod
+            요청방식 : POST
         */
         $.ajax({
-            url:"/api/lprod",
-            type:"post",
-            dataType:"json",
-            success:function(result){
-                /*
-                result
-                [
-                    {
-                        "lprodId": 1,
-                        "lprodGu": "P101",
-                        "lprodNa": "컴퓨터제품"
-                    },
-                    {
-                        "lprodId": 2,
-                        "lprodGu": "P102",
-                        "lprodNa": "전자제품"
-                    },
-                    {
-                        "lprodId": 3,
-                        "lprodGu": "P201",
-                        "lprodNa": "여성 캐주얼 의류"
-                    }
-                ]
-                */
-
+            url: "/api/lprod",
+            type: "POST",
+            dataType: "json",
+            success: function(result) {
                 console.log("result :", result);
-
-                let str ="";
-                //result : List<Lprod>
-                $.each(result,function(idx,lprod){
-                    console.log("lprod",lprod);
-                    //백틱 안에 J/S변수의 값을 출력하려면 달러{}
-                    //상세보기
-                    //1) 무엇을 클릭했는가?
-                    //2) 그 무엇에 대한 데이터를 모달에 출력
-                    str+=`
-                         <tr>
+                let str = "";
+                $.each(result, function(idx, lprod) {
+                    str += `
+                        <tr>
                             <td>${lprod.lprodId}</td>
-                            <td><a href="#" class="clsTd" data-lprod-id="${lprod.lprodId}" data-toggle="modal" data-target="#modalLg">${lprod.lprodGu}</a></td>
+                            <td>
+                              <a href="#"
+                                 class="clsTd"
+                                 data-lprod-id="${lprod.lprodId}"
+                                 data-toggle="modal"
+                                 data-target="#modalLg">
+                                ${lprod.lprodGu}
+                              </a>
+                            </td>
                             <td>${lprod.lprodNa}</td>
                         </tr>
                     `;
                 });
-                console.log("str : ", str);
-
                 $("#tbdy").html(str);
+            },
+            error: function(xhr, status, err) {
+                console.error("list fetch error:", err);
             }
         });
-    });
+        }
+
+        /*
+            {
+                "lprodId": 1,
+                "lprodGu": "P101",
+                "lprodNa": "컴퓨터제품"
+            }
+        */
+
+        //글 수정 실행
+            $("#modalBtnConfirm").on("click",function(){
+                /*
+                요청URI : /api/lprod/update
+                요청파라미터 : request{id=2,title=개똥이개똥이,content=즐거워즐거워}
+                요청방식 : post
+                */
+                lprodId = $("#modalLprodId").val();
+                lprodGu = $("#modalIptLprodGu").val();
+                lprodNa = $("#modalIptLprodNa").val();
+
+                //JSON Object
+                let data ={
+                    "lprodId" : lprodId,
+                    "lprodGu" : lprodGu,
+                    "lprodNa" : lprodNa
+                }
+                console.log("data :", data);
+
+                // 아작나써유..(피)씨다타써
+                //JSON Object ->serialize-> JSON String-> 네트워크 -> JSON String -> DTO
+                $.ajax({
+                    url:"/api/lprod/update",
+                    contentType:"application/json;charset-utf-8",
+                    data : JSON.stringify(data),
+                    type : "post",
+                    dataType : "json",
+                    success:function(result){
+                        //result :
+                        console.log("result : ", result);
+
+                        //1. 목록 최신화
+                        getLprodList();
+                        //2. 모달창 일반모드로 변경
+                        $("#modalLprodGu").html(result.lprodGu); //전역변수에는 문자열이 있음
+                        $("#modalLprodNa").html(result.lprodNa);//전역변수에는 문자열이 있음
+                        $("#spnGen").css("display","block"); //일반영역 보임
+                        $("#spnEdit").css("display","none"); //수정영역 안보임
+                        //3. 모달창 닫기
+                        $('#modalLg').modal('hide');
+                    }
+                })
+            });
+
+        /* 글 수정 취소
+
+            */
+            $("#modalBtnCancel").on("click",function(){
+                $("#modalTitle").html(title); //전역변수에는 문자열이 있음
+                $("#modalContent").html(content);//전역변수에는 문자열이 있음
+                //4. 일반모드로 변환
+                $("#spnGen").css("display","block"); //일반영역 보임
+                $("#spnEdit").css("display","none"); //수정영역 안보임
+            })
+
+        /* 글 수정 폼 */
+        $("#modalBtnEdit").on("click", function() {
+            // 1. id, title, content의 값을 변수에 저장
+            lprodId = $("#modalLprodId").val();          // 상품분류 번호
+            lprodGu  = $("#modalLprodGu").html();       // 기존 분류 코드
+            lprodNa  = $("#modalLprodNa").html();       // 기존 분류 명
+
+            console.log("lprodId : ", lprodId);
+            console.log("lprodGu  : ", lprodGu);
+            console.log("lprodNa  : ", lprodNa);
+
+            let strTitle = `
+                    <input type="email" class="form-control" id="modalIptLprodGu" value="${lprodGu}" placeholder="상품분류코드">
+
+                `;
+                $("#modalLprodGu").html(strTitle);
+                //3. id="modalContent" 요소 안에 text 처리
+                let strContent = `
+                    <input type="email" class="form-control" id="modalIptLprodNa" value="${lprodNa}" placeholder="상품분류명">
+
+                `;
+                $("#modalLprodNa").html(strContent);
+
+
+            // 4. 수정모드로 변환
+            $("#spnGen").css("display", "none");   // 일반영역 숨김
+            $("#spnEdit").css("display", "block"); // 수정영역 보임
+        });
+
+
+        // 비동기 상세 모달
+        // 동적으로 생성된 .clsTd 요소 클릭 위임
+        getLprodList();
+
+    }); // DOMContentLoaded 콜백 닫기
 </script>
+
 <section class="content">
     <div class="container-fluid">
         <!-- ///// body 시작 ///// -->
@@ -197,12 +268,22 @@
                 </button>
             </div>
             <div class="modal-body">
+                <!-- 차후 hidden 처리-->
+                <input type="text" id="modalLprodId" readonly/>
                 <p id="modalLprodNa"></p>
             </div>
             <div class="modal-footer justify-content">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-warning" style="">수정</button>
-                <button type="button" class="btn btn-danger">삭제</button>
+                <!-- 일반 모드 -->
+                <span id="spnGen">
+                    <button type="button" class="btn btn-warning" id="modalBtnEdit">수정</button>
+                    <button type="button" class="btn btn-danger" id="modalBtnDelete">삭제</button>
+                </span>
+                <!-- 수정 모드(처음에는 안보임) -->
+                <span id="spnEdit" style="display:none;">
+                    <button type="button" class="btn btn-primary" id="modalBtnConfirm">확인</button>
+                    <button type="button" class="btn btn-secondary" id="modalBtnCancel">취소</button>
+                </span>
             </div>
         </div>
         <!-- /.modal-content -->

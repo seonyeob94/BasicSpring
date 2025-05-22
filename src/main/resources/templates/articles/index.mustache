@@ -14,11 +14,107 @@
         let title = "";
         let content = "";
 
+        //전역 함수
+        function getArticleList(){
+            fetch("/api/articles",{
+                method:"GET",
+                headers:{
+                    "Content-Type":"application/json;charset=utf-8" //서버에 보내는 데이터 타입 명시 (생략 가능)
+                }
+                //body:데이터 (GET 요청에는 일반적으로 body가 없음)
+            })
+            .then(response=>{
+                //response.ok : HTTP Status Code가 200(성공)
+                if(!response.ok){//응답 오류
+                    throw new Error(`HTTP error! status : ${response.status}`);//오류 처리
+                }
+                //응답 데이터(JSON String)를 JSON 객체 형태로 파싱(구문/의미분석)하여
+                // 다음 then으로 전달
+                return response.json();
+            })
+            .then(result=>{
+                // 파싱된 JSON 데이터(result)를 보여주는 부분
+                console.log("result : ", result);
+
+                // result는 서버에서 받은 Article 엔티티 객체들의 리스트
+                // HTML 문자열을 담을 변수 초기화
+                let str = "";
+
+                // 테이블의 tbody 요소를 가져옴(id="tbdy")
+                const tbody = document.getElementById("tbdy");
+                // 각 article 객체에 대해 반복 처리
+                result.forEach(article=>{
+                    // article 객체 출력 (id, title, content 속성 포함)
+                    console.log("article : ", article);
+                    // 백틱을 사용하여 테이블 행(tr)과 데이터 셀(td)을 생성하고 article 데이터를 삽입
+                    str += `
+                            <tr>
+                                <td>${article.id}</td>
+                                <td><a href="#" class="clsTd" data-id="${article.id}" data-toggle="modal" data-target="#modalLg">${article.title}</a></td>
+                                <td>${article.content}</td>
+                            </tr>
+                        `;
+                });
+                // tbody 요소의 innerHTML 속성을 사용하여 생성된 HTML 문자열로 내용을 업데이트
+                tbody.innerHTML = str;
+                // .append()와 유사하게 기존 내용을 유지하면서 새로운 내용을 추가하지만,
+                // 여기서는 문자열 전체를 덮어쓰는 방식으로 구현
+            })
+            .catch(error=>{
+                // 네트워크 오류나 서버 응답 오류 등 예외가 발생했을 경우 처리
+                console.error('데이터를 가져오는 중 오류 발생:', error);
+            });
+        }
+
 
         //document의 모든 요소들이 로딩된 후에 실행
         //$(function(){
         document.addEventListener("DOMContentLoaded",()=>{
             console.log("개똥이");
+
+            //글 수정 실행
+            $("#modalBtnConfirm").on("click",function(){
+                /*
+                요청URI : /api/articles/update
+                요청파라미터 : request{id=2,title=개똥이개똥이,content=즐거워즐거워}
+                요청방식 : post
+                */
+                id = $("#modalId").val();
+                title = $("#modalIptTitle").val();
+                content = $("#modalIptContent").val();
+
+                //JSON Object
+                let data ={
+                    "id" : id,
+                    "title" : title,
+                    "content" : content
+                }
+                console.log("data :", data);
+
+                // 아작나써유..(피)씨다타써
+                //JSON Object ->serialize-> JSON String-> 네트워크 -> JSON String -> DTO
+                $.ajax({
+                    url:"/api/articles/update",
+                    contentType:"application/json;charset-utf-8",
+                    data : JSON.stringify(data),
+                    type : "post",
+                    dataType : "json",
+                    success:function(result){
+                        //result : 
+                        console.log("result : ", result);
+
+                        //1. 목록 최신화
+                        getArticleList();
+                        //2. 모달창 일반모드로 변경
+                        $("#modalTitle").html(result.title); //전역변수에는 문자열이 있음
+                        $("#modalContent").html(result.content);//전역변수에는 문자열이 있음
+                        $("#spnGen").css("display","block"); //일반영역 보임
+                        $("#spnEdit").css("display","none"); //수정영역 안보임
+                        //3. 모달창 닫기
+                        $('#modalLg').modal('hide');
+                    }
+                })
+            });
 
             /* 글 수정 취소
 
@@ -46,13 +142,13 @@
 
                 //2. id="modalTitle" 요소 안에 text 처리
                 let strTitle = `
-                    <input type="email" class="form-control" id="exampleInputTitle" value="${title}" placeholder="글제목">
+                    <input type="email" class="form-control" id="modalIptTitle" value="${title}" placeholder="글제목">
 
                 `;
                 $("#modalTitle").html(strTitle);
                 //3. id="modalContent" 요소 안에 text 처리
                 let strContent = `
-                    <input type="email" class="form-control" id="exampleInputContent" value="${content}" placeholder="글내용">
+                    <input type="email" class="form-control" id="modalIptContent" value="${content}" placeholder="글내용">
 
                 `;
                 $("#modalContent").html(strContent);
@@ -69,6 +165,7 @@
 
             동적으로 생성된 엘리멘트의 경우 document로 접근해야 함
             */
+
             //$(document).on("click",".clsTd",function(){
             document.addEventListener("click",function(event){
                 //this : 그 중에서 방금 클릭한 바로 그 엘리먼트
@@ -139,54 +236,7 @@
             dataType:응답타입
             ajax : Asynchronous(비동기) JavaScript and XML => 정보교환
             */
-            fetch("/api/articles",{
-                method:"GET",
-                headers:{
-                    "Content-Type":"application/json;charset=utf-8" //서버에 보내는 데이터 타입 명시 (생략 가능)
-                }
-                //body:데이터 (GET 요청에는 일반적으로 body가 없음)
-            })
-            .then(response=>{
-                //response.ok : HTTP Status Code가 200(성공)
-                if(!response.ok){//응답 오류
-                    throw new Error(`HTTP error! status : ${response.status}`);//오류 처리
-                }
-                //응답 데이터(JSON String)를 JSON 객체 형태로 파싱(구문/의미분석)하여
-                // 다음 then으로 전달
-                return response.json();
-            })
-            .then(result=>{
-                // 파싱된 JSON 데이터(result)를 보여주는 부분
-                console.log("result : ", result);
-
-                // result는 서버에서 받은 Article 엔티티 객체들의 리스트
-                // HTML 문자열을 담을 변수 초기화
-                let str = "";
-
-                // 테이블의 tbody 요소를 가져옴(id="tbdy")
-                const tbody = document.getElementById("tbdy");
-                // 각 article 객체에 대해 반복 처리
-                result.forEach(article=>{
-                    // article 객체 출력 (id, title, content 속성 포함)
-                    console.log("article : ", article);
-                    // 백틱을 사용하여 테이블 행(tr)과 데이터 셀(td)을 생성하고 article 데이터를 삽입
-                    str += `
-                            <tr>
-                                <td>${article.id}</td>
-                                <td><a href="#" class="clsTd" data-id="${article.id}" data-toggle="modal" data-target="#modalLg">${article.title}</a></td>
-                                <td>${article.content}</td>
-                            </tr>
-                        `;
-                });
-                // tbody 요소의 innerHTML 속성을 사용하여 생성된 HTML 문자열로 내용을 업데이트
-                tbody.innerHTML = str;
-                // .append()와 유사하게 기존 내용을 유지하면서 새로운 내용을 추가하지만,
-                // 여기서는 문자열 전체를 덮어쓰는 방식으로 구현
-            })
-            .catch(error=>{
-                // 네트워크 오류나 서버 응답 오류 등 예외가 발생했을 경우 처리
-                console.error('데이터를 가져오는 중 오류 발생:', error);
-            });
+            getArticleList();
         });
     </script>
     <title>Document</title>
