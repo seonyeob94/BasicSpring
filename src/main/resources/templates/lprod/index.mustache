@@ -111,6 +111,51 @@
             }
         */
 
+        //글 삭제
+        //<button type="button" class="btn btn-danger" id="modalBtnDelete">삭제</button>
+        $("#modalBtnDelete").on("click",function(){
+            //<input type="text" id="modalLprodId" readonly="">
+            lprodId=$("#modalLprodId").val();
+            console.log("lprodId :", lprodId);
+
+            //1. 삭제의항 체크
+            if(confirm("정말 삭제하겠습니까?")){
+
+                /* 글 삭제
+                요청URI : /api/articles/delete
+                요청파라미터 : JSON String{lprodId:2}
+                요청방식 : post
+                */
+                let data = {
+                    "lprodId" : lprodId
+                }
+
+                console.log("data : ",data);
+
+                // 아작나써유..(피)씨다타써
+                $.ajax({
+                    url:"/api/lprod/delete",
+                    contentType:"application/json;charset=utf-8",
+                    //data: JSON.stringify(data),
+                    data: JSON.stringify((Number(lprodId))),
+                    type:"POST",
+                    success: function(result){
+                        //                                          deserialize
+                        //result : Lprod 타입의 JSON String =>JSON Object
+                        console.log("result : ", result);
+                        //2. 모달창 닫기
+                        $('#modalLg').modal('hide');
+
+                        //3. 목록 다시 불러오기
+                        getLprodList();
+                    }
+                });
+
+
+            }//if end
+
+        })
+
         //글 수정 실행
             $("#modalBtnConfirm").on("click",function(){
                 /*
@@ -154,6 +199,7 @@
                     }
                 })
             });
+
 
         /* 글 수정 취소
 
@@ -269,7 +315,7 @@
             </div>
             <div class="modal-body">
                 <!-- 차후 hidden 처리-->
-                <input type="text" id="modalLprodId" readonly/>
+                <input type="text" id="modalLprodId" />
                 <p id="modalLprodNa"></p>
             </div>
             <div class="modal-footer justify-content">

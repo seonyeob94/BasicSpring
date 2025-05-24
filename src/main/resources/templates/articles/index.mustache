@@ -72,6 +72,52 @@
         document.addEventListener("DOMContentLoaded",()=>{
             console.log("개똥이");
 
+            //글삭제
+            //<button type="button" class="btn btn-danger" id="modalBtnDelete">삭제</button>
+            $("#modalBtnDelete").on("click",function(){
+                //<input type="text" id="modalId"> : ARTICLE 테이블의 식별자, 기본키의 값
+                id =$("#modalId").val();
+                console.log("id :", id);
+
+                //1. 삭제의항 체크
+                if(confirm("정말 삭제하겠습니까?")){
+
+
+
+                    /* 글 삭제
+                    요청URI : /api/articles/delete
+                    요청파라미터 : JSON String{id:2}
+                    요청방식 : post
+                     */
+                     let data = {
+                        "id" : id
+                     }
+
+                     console.log("data : ",data);
+
+                     // 아작나써유..(피)씨다타써
+                     $.ajax({
+                        url:"/api/articles/delete",
+                        contentType:"application/json;charset=utf-8",
+                        data: JSON.stringify(data),
+                        type:"POST",
+                        success: function(result){
+                            //                                          deserialize
+                            //result : Article 타입의 JSON String =>JSON Object
+                            console.log("result : ", result);
+
+                             //2. 모달 닫기
+                             $('#modalLg').modal('hide');
+
+                             //3. 목록 다시 불러오기
+                             getArticleList();
+                        }
+                     });
+
+
+                }//end if
+            });
+
             //글 수정 실행
             $("#modalBtnConfirm").on("click",function(){
                 /*
@@ -95,7 +141,7 @@
                 //JSON Object ->serialize-> JSON String-> 네트워크 -> JSON String -> DTO
                 $.ajax({
                     url:"/api/articles/update",
-                    contentType:"application/json;charset-utf-8",
+                    contentType:"application/json;charset=utf-8",
                     data : JSON.stringify(data),
                     type : "post",
                     dataType : "json",
@@ -127,7 +173,7 @@
                 $("#spnEdit").css("display","none"); //수정영역 안보임
             })
 
-           /* 글 수정 폼 */
+            /* 글 수정 폼 */
             $("#modalBtnEdit").on("click",function(){
                 //1. id, title, content의 값을 변수에 저장
                 id = $("#modalId").val(); //2
@@ -184,7 +230,7 @@
                     return;
                 }
 
-                 //아작나써유..(피)씨다타써
+                //아작나써유..(피)씨다타써
                 //contentType : 보내는 타입
                 //dataType : 응답타입
 
@@ -201,16 +247,16 @@
                     //<input type="text" id="modalId" />
                     document.getElementById("modalId").value = result.id;
 
-                     // 1. 모달의 id가 "modalTitle"인 요소의 내용을 서버에서 받은 title 값으로 업데이트
+                    // 1. 모달의 id가 "modalTitle"인 요소의 내용을 서버에서 받은 title 값으로 업데이트
                     const modalTitleElement = document.getElementById("modalTitle");
                     if(modalTitleElement){
                         modalTitleElement.textContent = result.title;
                     }
-                     // 2. 모달의 id가 "modalContent"인 요소의 내용을 서버에서 받은 content 값으로 업데이트
-                     const modalContentElement = document.getElementById("modalContent");
-                     if(modalContentElement){
+                    // 2. 모달의 id가 "modalContent"인 요소의 내용을 서버에서 받은 content 값으로 업데이트
+                    const modalContentElement = document.getElementById("modalContent");
+                    if(modalContentElement){
                         modalContentElement.textContent = result.content;
-                     }
+                    }
 
                     //4. 일반모드로 변환
                     $("#spnGen").css("display","block"); //일반영역 보임
@@ -260,11 +306,11 @@
         <!-- msg 사용 범위 설정 끝 -->
         <table class="table">
             <thead>
-            <tr>
-                <th scope="col">Id</th>
-                <th scope="col">Title</th>
-                <th scope="col">Content</th>
-            </tr>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Content</th>
+                </tr>
             </thead>
             <tbody id="tbdy">
             <!-- model.addAttribute("articleList", articleEntityList);

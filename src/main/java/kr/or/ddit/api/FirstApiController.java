@@ -99,4 +99,37 @@ public class FirstApiController {
         return target;
     }
 
+    /* 글 삭제
+    요청URI : /articles/delete
+    요청파라미터 : JSON String{id:2}
+    요청방식 : post
+     */
+    @PostMapping("/articles/delete")
+    public Article delete(@RequestBody ArticleForm articleForm){
+        // 로그: 삭제 요청이 수신되었음을 기록합니다.
+        log.info("삭제요청이 들어옴. articleForm" + articleForm);
+        Long id = articleForm.getId();
+        log.info("삭제요청이 들어옴. id" + id);
+
+        //1) 삭제할 대상 가져오기
+        // articleRepository를 사용하여 전달받은 id로 Article 엔티티를 데이터베이스에서 조회합니다.
+        // 만약 해당 id의 엔티티가 존재하지 않으면 null을 반환합니다.
+        // 로그: 조회된 삭제 대상 엔티티 정보를 기록합니다.
+        Article target = this.articleRepository.findById(id).orElse(null);
+        log.info("delete->target : " + target);
+
+        //2) 대상 엔티티 삭제하기
+        //삭제할 대상이 있는지 확인
+        // 조회된 엔티티(target)가 null이 아닌지, 즉 삭제할 대상이 존재하는지 확인합니다.
+        if(target != null) {
+            //delete() 메서드로 대상 삭제
+            // articleRepository의 delete() 메소드를 호출하여 데이터베이스에서 해당 엔티티를 삭제합니다.
+            this.articleRepository.delete(target);
+
+
+        }
+        //데이터
+        return target;
+    }
+
 }
