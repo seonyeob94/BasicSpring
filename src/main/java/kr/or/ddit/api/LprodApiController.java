@@ -3,6 +3,7 @@ package kr.or.ddit.api;
 import kr.or.ddit.dto.LprodForm;
 import kr.or.ddit.entity.Lprod;
 import kr.or.ddit.repository.LprodRepository;
+import kr.or.ddit.service.LprodService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,9 @@ public class LprodApiController {
     //DI / IoC(제어의 역전)
     @Autowired
     LprodRepository lprodRepository;
+
+    @Autowired
+    private LprodService lprodService;
     //비동기 목록 출력
     /*
     요청URI : /api/lprod
@@ -27,7 +31,8 @@ public class LprodApiController {
     //RestController에 의해서 ResponseBody 에너테이션 생략
     @PostMapping("/api/lprod")
     public List<Lprod> lprods(){
-        List<Lprod> lprodList = this.lprodRepository.findAll();
+        //Controller -> lprodService -> lprodServiceImpl -> findAll() 메소드 -> mapper의 findAll() 호출
+        List<Lprod> lprodList = this.lprodService.findAll();
         log.info("lprods->lprodList : " + lprodList);
         //데이터
         return lprodList;
@@ -41,7 +46,11 @@ public class LprodApiController {
     public Lprod show(@PathVariable(value = "lprodId")Long lprodId){
         log.info("show->lprodId : " + lprodId);
         //SELECT LPROD_ID, LPROD_GU, LPROD_NM FROM LPROD WHERE LPROD_ID = 2;
-        Lprod lprodEntity = this.lprodRepository.findById(lprodId).orElse(null);
+        // Controller -> Mapper 인터페이스의 메서드 호출(x)
+        //Lprod lprodEntity = this.lprodRepository.findById(lprodId).orElse(null);
+        // Controller -> Service 인터페이스의 메서드 호출(O)
+
+        Lprod lprodEntity = this.lprodService.findById(lprodId);
         log.info("show->lprodEntity : " + lprodEntity);
         //데이터 응답(JSON String)
         return lprodEntity;
@@ -67,14 +76,14 @@ public class LprodApiController {
 
         //        2. 엔티티를 DB에 저장
         //2-1. DB에서 기존 데이터 가져오기(검증)
-        Lprod target = this.lprodRepository.findById(lprodEntity.getLprodId()).orElse(null);
+        Lprod target = this.lprodService.findById(lprodEntity.getLprodId());
         log.info("update->target : " + target);
 
         //2-2. 기존 데이터 값을 갱신하기
         //엔티티를 DB에 저장(갱신)
         if(target != null){//검증완료
             //lprodEntity{lprodId=2,title=p102,content=전자제품22}
-            this.lprodRepository.save(lprodEntity);
+            this.lprodService.save(lprodEntity);
         }
 
         //   데이터
@@ -99,7 +108,7 @@ public class LprodApiController {
         // articleRepository를 사용하여 전달받은 id로 Article 엔티티를 데이터베이스에서 조회합니다.
         // 만약 해당 id의 엔티티가 존재하지 않으면 null을 반환합니다.
         // 로그: 조회된 삭제 대상 엔티티 정보를 기록합니다.
-        Lprod target = this.lprodRepository.findById(lprodId).orElse(null);
+        Lprod target = this.lprodService.findById(lprodId);
         log.info("delete->target : " + target);
 
         //2) 대상 엔티티 삭제하기
@@ -108,7 +117,7 @@ public class LprodApiController {
         if(target != null) {
             //delete() 메서드로 대상 삭제
             // articleRepository의 delete() 메소드를 호출하여 데이터베이스에서 해당 엔티티를 삭제합니다.
-            this.lprodRepository.delete(target);
+            this.lprodService.delete(target);
 
 
         }

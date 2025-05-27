@@ -37,7 +37,7 @@ public class FirstController {
     private ArticleRepository articleRepository;
 
     @Autowired
-    private ArticleService ariticleService;
+    private ArticleService articleService;
 
     //메서드 작성
     @GetMapping("/hi")
@@ -168,7 +168,8 @@ public class FirstController {
         //findAll() 메서드의 반환 데이터 타입은 Iterable. List라서 불일치
         //첫째, 캐스팅(형변환). Iteratable, Collection, LList 인터페이스의 상하 관계는 Iteratable이 가장 상위 인터페이스
         // Iteratable이 가장 상위 인터페이스
-        ArrayList<Article> articleEntityList = this.articleRepository.findAll();
+        // 스프링은 인터페이스를 좋아해.(다형성. 팀장=>순대국밥 먹읍시다(x), 국밥 먹읍시다(O))
+        ArrayList<Article> articleEntityList = this.articleService.findAll();
         //2. 모델에 데이터 등록하기(쌍쌍 쉼 쌍쌍)
         model.addAttribute("articleList", articleEntityList);
         //3. 뷰 페이지 설정하기
@@ -192,7 +193,7 @@ public class FirstController {
         //DB에서 수정할 데이터 가져오기
         //DB에서 데이터를 가져올 때는 리파지터리를 이용.
         //만약 데이터를 찾지 못하면 null을 반환, 데이터를 찾았다면 Article 타입의 articleEntity로 작성함
-        Article articleEntity = this.articleRepository.findById(id).orElse(null);
+        Article articleEntity = this.articleService.findById(id);
         //모델에 데이터 등록하기
         //articleEntity를 article로 등록
         model.addAttribute("article",articleEntity);
@@ -222,13 +223,13 @@ public class FirstController {
 
         //        2. 엔티티를 DB에 저장
         //2-1. DB에서 기존 데이터 가져오기(검증)
-        Article target = this.articleRepository.findById(articleEntity.getId()).orElse(null);
+        Article target = this.articleService.findById(articleEntity.getId());
         log.info("update->target : " + target);
 
         //2-2. 기존 데이터 값을 갱신하기
         //엔티티를 DB에 저장(갱신)
         if(target != null){//검증완료
-            this.articleRepository.save(articleEntity);
+            this.articleService.save(articleEntity);
         }
         //        3. 수정 결과 페이지로 리다이렉트(상세 보기) : 새로운 URI를 재요청
         return "redirect:/articles/"+articleEntity.getId();
@@ -252,7 +253,7 @@ public class FirstController {
         // articleRepository를 사용하여 전달받은 id로 Article 엔티티를 데이터베이스에서 조회합니다.
         // 만약 해당 id의 엔티티가 존재하지 않으면 null을 반환합니다.
         // 로그: 조회된 삭제 대상 엔티티 정보를 기록합니다.
-        Article target = this.articleRepository.findById(id).orElse(null);
+        Article target = this.articleService.findById(id);
         log.info("delete->target : " + target);
 
         //2) 대상 엔티티 삭제하기
@@ -261,7 +262,7 @@ public class FirstController {
         if(target != null) {
             //delete() 메서드로 대상 삭제
             // articleRepository의 delete() 메소드를 호출하여 데이터베이스에서 해당 엔티티를 삭제합니다.
-            this.articleRepository.delete(target);
+            this.articleService.delete(target);
             // RedirectAttributes 객체에 "msg"라는 이름으로 "삭제했습니다"라는 메시지를 추가합니다.
             // 이 메시지는 리다이렉트된 페이지에서 한 번만 사용할 수 있는 일회성 데이터입니다.
             // 이해비법 : redirect 시 상용되는 model(forwarding 시 사용)이라고 생각해도 됨

@@ -3,10 +3,12 @@ package kr.or.ddit.api;
 import kr.or.ddit.dto.ArticleForm;
 import kr.or.ddit.entity.Article;
 import kr.or.ddit.repository.ArticleRepository;
+import kr.or.ddit.service.ArticleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -32,6 +34,9 @@ public class FirstApiController {
     @Autowired
     private ArticleRepository articleRepository;
 
+    @Autowired
+    private ArticleService articleService;
+
     /* 글 목록
     요청URI : /api/articles
     요청파라미터 :
@@ -41,8 +46,28 @@ public class FirstApiController {
     public List<Article> index(){
         //메서드 수행 결과로 Article 묶음을 반환하므로 반환형이 List<Article>임
         //.findAll() 메서드 : DB에 저장된 모든 Article을 가져와 반환 함.
-        List<Article> articleList = this.articleRepository.findAll();
+        List<Article> articleList = this.articleService.findAll();
         log.info("index->articleList : " + articleList);
+        // 1. List와 ArrayList의 리턴 받는 차이점
+        //1-1 List로 받기
+        //fruits : ["Apple","Banana"]
+        List<String> fruits = this.articleService.getStringList();
+        for(String fruit : fruits){
+            log.info("fruit : " + fruit);
+        }
+
+        //trimToSize() 메소드 : ArrayList의 빈 공간 제거
+        //fruits.trimToSize();
+
+        //1-2 ArrayList로 받기
+        //fruits : ["Apple","Banana"]
+        ArrayList<String> fruitsArrayList = this.articleService.getStringArrayList();
+        for(String fruitArray : fruitsArrayList){
+            log.info("fruitArray : " + fruitArray);
+        }
+
+        //trimToSize() 메소드 : ArrayList의 빈 공간 제거
+        fruitsArrayList.trimToSize();
 
         //데이터 응답
         return articleList;
@@ -58,7 +83,8 @@ public class FirstApiController {
     //RestController이므로 ResponseBody 애너테이션이 생략됨
     @GetMapping("/articles/{id}")
     public Article show(@PathVariable(value="id") Long id){
-        Article article = this.articleRepository.findById(id).orElse(null);
+        //Article article = this.articleRepository.findById(id).orElse(null);
+        Article article = this.articleService.findById(id);
         log.info("show->article : " + article);
         //데이터 응답
         return article;
@@ -84,14 +110,14 @@ public class FirstApiController {
 
         //        2. 엔티티를 DB에 저장
         //2-1. DB에서 기존 데이터 가져오기(검증)
-        Article target = this.articleRepository.findById(articleEntity.getId()).orElse(null);
+        Article target = this.articleService.findById(articleEntity.getId());
         log.info("update->target : " + target);
 
         //2-2. 기존 데이터 값을 갱신하기
         //엔티티를 DB에 저장(갱신)
         if(target != null){//검증완료
             //articleEntity{id=2, title=개똥이의 여행22, content=즐거운 여행22}
-            this.articleRepository.save(articleEntity);
+            this.articleService.save(articleEntity);
         }
 
         //   데이터
@@ -115,7 +141,7 @@ public class FirstApiController {
         // articleRepository를 사용하여 전달받은 id로 Article 엔티티를 데이터베이스에서 조회합니다.
         // 만약 해당 id의 엔티티가 존재하지 않으면 null을 반환합니다.
         // 로그: 조회된 삭제 대상 엔티티 정보를 기록합니다.
-        Article target = this.articleRepository.findById(id).orElse(null);
+        Article target = this.articleService.findById(id);
         log.info("delete->target : " + target);
 
         //2) 대상 엔티티 삭제하기
@@ -124,7 +150,7 @@ public class FirstApiController {
         if(target != null) {
             //delete() 메서드로 대상 삭제
             // articleRepository의 delete() 메소드를 호출하여 데이터베이스에서 해당 엔티티를 삭제합니다.
-            this.articleRepository.delete(target);
+            this.articleService.delete(target);
 
 
         }

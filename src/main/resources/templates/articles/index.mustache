@@ -211,15 +211,12 @@
 
             동적으로 생성된 엘리멘트의 경우 document로 접근해야 함
             */
-
             //$(document).on("click",".clsTd",function(){
             document.addEventListener("click",function(event){
                 //this : 그 중에서 방금 클릭한 바로 그 엘리먼트
                 //<a href="#" class="clsTd" data-id="2">개똥이의 여행2</a>
-
                 // let id =$(this).data("id"); //2
                     let id="";
-
                 if(event.target.classList.contains("clsTd")){
                     //let id =$(this).data("id");   //2
                     id =event.target.dataset.id;

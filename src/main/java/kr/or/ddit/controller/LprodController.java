@@ -3,6 +3,7 @@ package kr.or.ddit.controller;
 import kr.or.ddit.dto.LprodForm;
 import kr.or.ddit.entity.Lprod;
 import kr.or.ddit.repository.LprodRepository;
+import kr.or.ddit.service.LprodService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,9 @@ public class LprodController {
     //DI(Dependency Injection)
     @Autowired
     private LprodRepository lprodRepository;
+
+    @Autowired
+    private LprodService lprodService;
 
     @GetMapping("/lprod/new")
     public String newArticleForm(){
@@ -88,7 +92,7 @@ public class LprodController {
         //orElse(null) : lprodId 값으로 데이터를 찾을 때 해당 lprodId 값이 없으면 null을 반환.
         // 데이터를 조회한 결과, 값이 있으면 lprodEntity 변수에 값을 넣고 없으면
         //  null을 저장
-        Lprod lprodEntity = this.lprodRepository.findById(lprodId).orElse(null);
+        Lprod lprodEntity = this.lprodService.findById(lprodId);
         log.info("show->lprodEntity : " + lprodEntity);
         //2. 모델에 데이터 등록하기
         //lprod이라는 이름으로 value인 lprodEntity 객체 추가
@@ -109,7 +113,7 @@ public class LprodController {
         //findAll() 메서드의 반환 데이터 타입은 Iterable. List라서 불일치
         //첫째, 캐스팅(형변환). Iteratable, Collection, LList 인터페이스의 상하 관계는 Iteratable이 가장 상위 인터페이스
         // Iteratable이 가장 상위 인터페이스
-        ArrayList<Lprod> lprodEntityList=this.lprodRepository.findAll();
+        ArrayList<Lprod> lprodEntityList=this.lprodService.findAll();
         //2. 모델에 데이터 등록하기(쌍쌍 쉼 쌍쌍)
 
         model.addAttribute("lprodList",lprodEntityList);
@@ -134,7 +138,7 @@ public class LprodController {
         //DB에서 수정할 데이터 가져오기
         //DB에서 데이터를 가져올 때는 리파지터리를 이용.
         //만약 데이터를 찾지 못하면 null을 반환, 데이터를 찾았다면 Lprod 타입의 articleEntity로 작성함
-        Lprod lprodEntity = this.lprodRepository.findById(lprodId).orElse(null);
+        Lprod lprodEntity = this.lprodService.findById(lprodId);
         //모델에 데이터 등록하기
         //articleEntity를 article로 등록
         model.addAttribute("lprod",lprodEntity);
@@ -164,13 +168,13 @@ public class LprodController {
 
         //        2. 엔티티를 DB에 저장
         //2-1. DB에서 기존 데이터 가져오기(검증)
-        Lprod target = this.lprodRepository.findById(lprodEntity.getLprodId()).orElse(null);
+        Lprod target = this.lprodService.findById(lprodEntity.getLprodId());
         log.info("update->target : " + target);
 
         //2-2. 기존 데이터 값을 갱신하기
         //엔티티를 DB에 저장(갱신)
         if(target != null){//검증완료
-            this.lprodRepository.save(lprodEntity);
+            this.lprodService.save(lprodEntity);
         }
         //        3. 수정 결과 페이지로 리다이렉트(상세 보기) : 새로운 URI를 재요청
         return "redirect:/lprod/"+lprodEntity.getLprodId();
@@ -194,7 +198,7 @@ public class LprodController {
         // articleRepository를 사용하여 전달받은 id로 Article 엔티티를 데이터베이스에서 조회합니다.
         // 만약 해당 id의 엔티티가 존재하지 않으면 null을 반환합니다.
         // 로그: 조회된 삭제 대상 엔티티 정보를 기록합니다.
-        Lprod target = this.lprodRepository.findById(lprodId).orElse(null);
+        Lprod target = this.lprodService.findById(lprodId);
         log.info("delete->target : " + target);
 
         //2) 대상 엔티티 삭제하기
@@ -203,7 +207,7 @@ public class LprodController {
         if(target != null) {
             //delete() 메서드로 대상 삭제
             // articleRepository의 delete() 메소드를 호출하여 데이터베이스에서 해당 엔티티를 삭제합니다.
-            this.lprodRepository.delete(target);
+            this.lprodService.delete(target);
             // RedirectAttributes 객체에 "msg"라는 이름으로 "삭제했습니다"라는 메시지를 추가합니다.
             // 이 메시지는 리다이렉트된 페이지에서 한 번만 사용할 수 있는 일회성 데이터입니다.
             // 이해비법 : redirect 시 상용되는 model(forwarding 시 사용)이라고 생각해도 됨
